@@ -13,6 +13,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"path/filepath"
 )
 
 type Configuration struct {
@@ -202,18 +203,20 @@ func LoadConfiguration(opts *Options) (config *Configuration, err error) {
 }
 
 func defaultPath() string {
-	user, err := user.Current()
-
-	// user.Current() does not work on linux when cross compiling because
-	// it requires CGO; use os.Getenv("HOME") hack until we compile natively
-	homeDir := os.Getenv("HOME")
-	if err != nil {
-		log.Warn("Failed to get user's home directory: %s. Using $HOME: %s", err.Error(), homeDir)
-	} else {
-		homeDir = user.HomeDir
+	cfgfile := path.Join(filepath.Dir(os.Args[0]), "ngrok.cfg")
+	if _, err := os.Stat(cfgfile); os.IsNotExist(err) {
+		user, err := user.Current()
+		// user.Current() does not work on linux when cross compiling because
+		// it requires CGO; use os.Getenv("HOME") hack until we compile natively
+		homeDir := os.Getenv("HOME")
+		if err != nil {
+			log.Warn("Failed to get user's home directory: %s. Using $HOME: %s", err.Error(), homeDir)
+		} else {
+			homeDir = user.HomeDir
+		}
+		cfgfile = path.Join(homeDir, ".ngrok/ngrok.cfg")
 	}
-
-	return path.Join(homeDir, ".ngrok")
+	return cfgfile
 }
 
 func normalizeAddress(addr string, propName string) (string, error) {

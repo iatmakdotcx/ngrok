@@ -73,7 +73,7 @@ func ParseArgs() (opts *Options, err error) {
 	authtoken := flag.String(
 		"authtoken",
 		"",
-		"Authentication token for identifying an ngrok.com account")
+		"Authentication token for identifying an t.mak.cx account")
 
 	httpauth := flag.String(
 		"httpauth",

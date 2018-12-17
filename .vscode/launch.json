@@ -1,0 +1,35 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Server",
+            "type": "go",
+            "request": "launch",
+            "mode": "debug",
+            "remotePath": "",
+            "host": "127.0.0.1",
+            "port": 2345,            
+            "program": "${fileDirname}",
+            "env": {},
+            "args": ["-tlsCrt=C:\\Users\\keng\\Desktop\\ngrok-master\\cert\\full_chain.pem",
+                "-tlsKey=C:\\Users\\keng\\Desktop\\ngrok-master\\cert\\private.key"],    
+             
+        },
+        {
+            "name": "Client",
+            "type": "go",
+            "request": "launch",
+            "mode": "debug",
+            "remotePath": "",
+            "host": "127.0.0.1",
+            "port": 2345,            
+            "program": "${fileDirname}",
+            "env": {},
+            "args": ["-log=stdout", "10666"],    
+             
+        }
+    ]
+}

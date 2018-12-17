@@ -29,6 +29,7 @@
             "host": "127.0.0.1",
             "port": 2345,
             "program": "${workspaceFolder}\\src\\ngrok\\main\\ngrok\\ngrok.go",
+            "cwd": "${workspaceFolder}",
             "env": {
                 "GOPATH":"${env:GOPATH};${workspaceRoot}"
             },

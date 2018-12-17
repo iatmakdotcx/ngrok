@@ -9,27 +9,31 @@
             "type": "go",
             "request": "launch",
             "mode": "debug",
-            "remotePath": "",
             "host": "127.0.0.1",
-            "port": 2345,            
-            "program": "${fileDirname}",
-            "env": {},
-            "args": ["-tlsCrt=C:\\Users\\keng\\Desktop\\ngrok-master\\cert\\full_chain.pem",
-                "-tlsKey=C:\\Users\\keng\\Desktop\\ngrok-master\\cert\\private.key"],    
-             
+            "port": 2345,
+            "program": "${workspaceFolder}\\src\\ngrok\\main\\ngrokd\\ngrokd.go",
+            "cwd": "${workspaceFolder}",
+            "env": {
+                "GOPATH":"${env:GOPATH};${workspaceRoot}"
+            },
+            "args": [
+               // "-tlsCrt=${workspaceFolder}\\assets\\server\\tls\\snakeoil.crt",
+               // "-tlsKey=${workspaceFolder}\\assets\\server\\tls\\snakeoil.key"
+            ]
         },
         {
             "name": "Client",
             "type": "go",
             "request": "launch",
             "mode": "debug",
-            "remotePath": "",
             "host": "127.0.0.1",
-            "port": 2345,            
-            "program": "${fileDirname}",
-            "env": {},
-            "args": ["-log=stdout", "10666"],    
-             
+            "port": 2345,
+            "program": "${workspaceFolder}\\src\\ngrok\\main\\ngrok\\ngrok.go",
+            "cwd": "${workspaceFolder}",
+            "env": {
+                "GOPATH":"${env:GOPATH};${workspaceRoot}"
+            },
+            "args": ["-log=ngrok.log", "10666"]
         }
     ]
 }

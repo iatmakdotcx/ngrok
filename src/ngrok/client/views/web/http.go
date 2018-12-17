@@ -263,6 +263,19 @@ func (whv *WebHttpView) register() {
 			panic(err)
 		}
 	})
+
+	http.HandleFunc("/stat", func(w http.ResponseWriter, r *http.Request) {
+		payloadData := SerializedPayload{
+			Txns:    whv.HttpRequests.Slice(),
+			UiState: SerializedUiState{Tunnels: whv.ctl.State().GetTunnels()},
+		}
+		payload, err := json.Marshal(payloadData)
+		if err != nil {
+			panic(err)
+		}
+		// write the response
+		w.Write([]byte(payload))
+	})
 }
 
 func (whv *WebHttpView) Shutdown() {

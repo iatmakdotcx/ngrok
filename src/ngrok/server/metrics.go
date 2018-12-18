@@ -4,13 +4,14 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	gometrics "github.com/rcrowley/go-metrics"
 	"io/ioutil"
 	"net/http"
 	"ngrok/conn"
 	"ngrok/log"
 	"os"
 	"time"
+
+	gometrics "github.com/rcrowley/go-metrics"
 )
 
 var metrics Metrics
@@ -273,7 +274,7 @@ func (k *KeenIoMetrics) CloseConnection(t *Tunnel, c conn.Conn, start time.Time,
 			Timestamp: start.UTC().Format("2006-01-02T15:04:05.000Z"),
 		},
 		OS:                 t.ctl.auth.OS,
-		ClientId:           t.ctl.id,
+		ClientId:           t.ctl.ClientTokenid,
 		Protocol:           t.req.Protocol,
 		Url:                t.url,
 		User:               t.ctl.auth.User,
@@ -314,7 +315,7 @@ func (k *KeenIoMetrics) CloseTunnel(t *Tunnel) {
 			Timestamp: t.start.UTC().Format("2006-01-02T15:04:05.000Z"),
 		},
 		OS:       t.ctl.auth.OS,
-		ClientId: t.ctl.id,
+		ClientId: t.ctl.ClientTokenid,
 		Protocol: t.req.Protocol,
 		Url:      t.url,
 		User:     t.ctl.auth.User,

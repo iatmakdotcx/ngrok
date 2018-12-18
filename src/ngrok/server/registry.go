@@ -92,7 +92,7 @@ func (r *TunnelRegistry) Register(url string, t *Tunnel) error {
 
 func (r *TunnelRegistry) cacheKeys(t *Tunnel) (ip string, id string) {
 	clientIp := t.ctl.conn.RemoteAddr().(*net.TCPAddr).IP.String()
-	clientId := t.ctl.id
+	clientId := t.ctl.ClientTokenid
 
 	ipKey := fmt.Sprintf("client-ip-%s:%s", t.req.Protocol, clientIp)
 	idKey := fmt.Sprintf("client-id-%s:%s", t.req.Protocol, clientId)

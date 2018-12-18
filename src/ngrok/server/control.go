@@ -46,7 +46,7 @@ type Control struct {
 	proxies chan conn.Conn
 
 	// identifier
-	id string
+	ClientTokenid string
 
 	// synchronizer for controlled shutdown of writer()
 	writerShutdown *util.Shutdown
@@ -90,26 +90,25 @@ func NewControl(ctlConn conn.Conn, authMsg *msg.Auth) {
 	var Userid int
 	if authMsg.ClientId != "" {
 		var Username string
-		if dbh.Db.QueryRow("SELECT User, Username FROM users where token=?", authMsg.ClientId).Scan(&Userid, &Username) != nil {
+		if dbh.Db.QueryRow("SELECT id, User FROM users where token=?", authMsg.ClientId).Scan(&Userid, &Username) != nil {
 			failAuth2("token is invalid")
 			return
 		}
+		c.ClientTokenid = authMsg.ClientId
 		c.username = Username
-		c.userid = Userid
 	} else if authMsg.User != "" {
 		var userToken string
 		if dbh.Db.QueryRow("SELECT id,token FROM users where User=? and Password=?", authMsg.User, authMsg.Password).Scan(&Userid, &userToken) != nil {
 			failAuth2("the username or password is incorrect")
 			return
 		}
-		c.id = userToken
+		c.ClientTokenid = userToken
 		c.username = authMsg.User
 	} else {
 		failAuth2("Need auth_token or username")
 		return
 	}
-	//TODO:CheckDb
-
+	c.userid = Userid
 	// register the clientid
 	// c.id = authMsg.ClientId
 	// var err error
@@ -123,7 +122,7 @@ func NewControl(ctlConn conn.Conn, authMsg *msg.Auth) {
 
 	// set logging prefix
 	ctlConn.SetType("ctl")
-	ctlConn.AddLogPrefix(c.id)
+	ctlConn.AddLogPrefix(c.ClientTokenid)
 
 	if authMsg.Version != version.Proto {
 		failAuth(fmt.Errorf("Incompatible versions. Server %s, client %s. Download a new version at http://"+opts.domain, version.MajorMinor(), authMsg.Version))
@@ -131,7 +130,7 @@ func NewControl(ctlConn conn.Conn, authMsg *msg.Auth) {
 	}
 
 	// register the control
-	if replaced := controlRegistry.Add(c.id, c); replaced != nil {
+	if replaced := controlRegistry.Add(c.ClientTokenid, c); replaced != nil {
 		replaced.shutdown.WaitComplete()
 	}
 
@@ -142,7 +141,7 @@ func NewControl(ctlConn conn.Conn, authMsg *msg.Auth) {
 	c.out <- &msg.AuthResp{
 		Version:   version.Proto,
 		MmVersion: version.MajorMinor(),
-		ClientId:  c.id,
+		ClientId:  c.ClientTokenid,
 	}
 
 	// As a performance optimization, ask for a proxy connection up front
@@ -292,7 +291,7 @@ func (c *Control) stopper() {
 	c.shutdown.WaitBegin()
 
 	// remove ourself from the control registry
-	controlRegistry.Del(c.id)
+	controlRegistry.Del(c.ClientTokenid)
 
 	// shutdown manager() so that we have no more work to do
 	close(c.in)
@@ -321,7 +320,7 @@ func (c *Control) stopper() {
 }
 
 func (c *Control) RegisterProxy(conn conn.Conn) {
-	conn.AddLogPrefix(c.id)
+	conn.AddLogPrefix(c.ClientTokenid)
 
 	conn.SetDeadline(time.Now().Add(proxyStaleDuration))
 	select {
@@ -378,7 +377,7 @@ func (c *Control) Replaced(replacement *Control) {
 
 	// set the control id to empty string so that when stopper()
 	// calls registry.Del it won't delete the replacement
-	c.id = ""
+	c.ClientTokenid = ""
 
 	// tell the old one to shutdown
 	c.shutdown.Begin()

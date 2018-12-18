@@ -102,6 +102,9 @@ func newClientModel(config *Configuration, ctl mvc.Controller) *ClientModel {
 
 		// config path
 		configPath: config.Path,
+
+		User:     config.User,
+		Password: config.Password,
 	}
 
 	// configure TLS

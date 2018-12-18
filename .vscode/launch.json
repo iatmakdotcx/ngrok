@@ -33,7 +33,7 @@
             "env": {
                 "GOPATH":"${env:GOPATH};${workspaceRoot}"
             },
-            "args": ["10666"]
+            "args": ["-log=ngrok.log", "10666"]
         }
     ]
 }

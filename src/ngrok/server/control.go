@@ -82,6 +82,18 @@ func NewControl(ctlConn conn.Conn, authMsg *msg.Auth) {
 		ctlConn.Close()
 	}
 
+	/*failAuth2 := func(e string) {
+		_ = msg.WriteMsg(ctlConn, e)
+		ctlConn.Close()
+	}
+
+	// check auth_token
+	if authMsg.User == "" {
+		failAuth2("Need auth_token")
+		return
+	}
+	TODO:CheckDb
+	*/
 	// register the clientid
 	c.id = authMsg.ClientId
 	if c.id == "" {
@@ -97,7 +109,7 @@ func NewControl(ctlConn conn.Conn, authMsg *msg.Auth) {
 	ctlConn.AddLogPrefix(c.id)
 
 	if authMsg.Version != version.Proto {
-		failAuth(fmt.Errorf("Incompatible versions. Server %s, client %s. Download a new version at http://ngrok.com", version.MajorMinor(), authMsg.Version))
+		failAuth(fmt.Errorf("Incompatible versions. Server %s, client %s. Download a new version at http://" + opts.domain, version.MajorMinor(), authMsg.Version))
 		return
 	}
 

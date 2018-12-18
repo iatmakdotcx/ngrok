@@ -2,18 +2,18 @@ package client
 
 import (
 	"fmt"
-	"gopkg.in/yaml.v1"
 	"io/ioutil"
 	"net"
 	"net/url"
 	"ngrok/log"
 	"os"
-	"os/user"
 	"path"
+	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
-	"path/filepath"
+
+	yaml "gopkg.in/yaml.v1"
 )
 
 type Configuration struct {
@@ -25,6 +25,8 @@ type Configuration struct {
 	Tunnels            map[string]*TunnelConfiguration `yaml:"tunnels,omitempty"`
 	LogTo              string                          `yaml:"-"`
 	Path               string                          `yaml:"-"`
+	User               string                          `yaml:"-"`
+	Password           string                          `yaml:"-"`
 }
 
 type TunnelConfiguration struct {
@@ -134,6 +136,8 @@ func LoadConfiguration(opts *Options) (config *Configuration, err error) {
 	}
 
 	// override configuration with command-line options
+	config.User = opts.user
+	config.Password = opts.password
 	config.LogTo = opts.logto
 	config.Path = configPath
 	if opts.authtoken != "" {
@@ -203,20 +207,7 @@ func LoadConfiguration(opts *Options) (config *Configuration, err error) {
 }
 
 func defaultPath() string {
-	cfgfile := path.Join(filepath.Dir(os.Args[0]), "ngrok.cfg")
-	if _, err := os.Stat(cfgfile); os.IsNotExist(err) {
-		user, err := user.Current()
-		// user.Current() does not work on linux when cross compiling because
-		// it requires CGO; use os.Getenv("HOME") hack until we compile natively
-		homeDir := os.Getenv("HOME")
-		if err != nil {
-			log.Warn("Failed to get user's home directory: %s. Using $HOME: %s", err.Error(), homeDir)
-		} else {
-			homeDir = user.HomeDir
-		}
-		cfgfile = path.Join(homeDir, ".ngrok/ngrok.cfg")
-	}
-	return cfgfile
+	return path.Join(filepath.Dir(os.Args[0]), "ngrok.cfg")
 }
 
 func normalizeAddress(addr string, propName string) (string, error) {

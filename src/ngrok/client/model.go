@@ -3,7 +3,6 @@ package client
 import (
 	"crypto/tls"
 	"fmt"
-	metrics "github.com/rcrowley/go-metrics"
 	"io/ioutil"
 	"math"
 	"net"
@@ -18,10 +17,12 @@ import (
 	"strings"
 	"sync/atomic"
 	"time"
+
+	metrics "github.com/rcrowley/go-metrics"
 )
 
 const (
-	defaultServerAddr   = "t.mak.cx:443"
+	defaultServerAddr   = "t.mak.cx:4443"
 	defaultInspectAddr  = "127.0.0.1:4040"
 	pingInterval        = 20 * time.Second
 	maxPongLatency      = 15 * time.Second
@@ -52,6 +53,8 @@ type ClientModel struct {
 	tlsConfig     *tls.Config
 	tunnelConfig  map[string]*TunnelConfiguration
 	configPath    string
+	User          string
+	Password      string
 }
 
 func newClientModel(config *Configuration, ctl mvc.Controller) *ClientModel {
@@ -99,6 +102,9 @@ func newClientModel(config *Configuration, ctl mvc.Controller) *ClientModel {
 
 		// config path
 		configPath: config.Path,
+
+		User:     config.User,
+		Password: config.Password,
 	}
 
 	// configure TLS
@@ -233,15 +239,16 @@ func (c *ClientModel) control() {
 	defer ctlConn.Close()
 
 	// authenticate with the server
+
 	auth := &msg.Auth{
-		ClientId:  c.id,
+		ClientId:  c.authToken,
 		OS:        runtime.GOOS,
 		Arch:      runtime.GOARCH,
 		Version:   version.Proto,
 		MmVersion: version.MajorMinor(),
-		User:      c.authToken,
+		User:      c.User,
+		Password:  c.Password,
 	}
-
 	if err = msg.WriteMsg(ctlConn, auth); err != nil {
 		panic(err)
 	}
@@ -259,6 +266,7 @@ func (c *ClientModel) control() {
 	}
 
 	c.id = authResp.ClientId
+	c.authToken = authResp.ClientId
 	c.serverVersion = authResp.MmVersion
 	c.Info("Authenticated with server, client id: %v", c.id)
 	c.update()

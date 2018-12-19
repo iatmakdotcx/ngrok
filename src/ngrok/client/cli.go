@@ -45,6 +45,8 @@ type Options struct {
 	protocol  string
 	subdomain string
 	command   string
+	user      string
+	password  string
 	args      []string
 }
 
@@ -95,6 +97,16 @@ func ParseArgs() (opts *Options, err error) {
 		"http+https",
 		"The protocol of the traffic over the tunnel {'http', 'https', 'tcp'} (default: 'http+https')")
 
+	user := flag.String(
+		"user",
+		"",
+		"user name")
+
+	password := flag.String(
+		"pwd",
+		"",
+		"password")
+
 	flag.Parse()
 
 	opts = &Options{
@@ -106,6 +118,8 @@ func ParseArgs() (opts *Options, err error) {
 		protocol:  *protocol,
 		authtoken: *authtoken,
 		hostname:  *hostname,
+		user:      *user,
+		password:  *password,
 		command:   flag.Arg(0),
 	}
 

@@ -78,12 +78,12 @@ func registerVhost(t *Tunnel, protocol string, servingPort int) (err error) {
 	}
 
 	// Register for specific subdomain
-	subdomain := strings.ToLower(strings.TrimSpace(t.req.Subdomain))
+	//subdomain := strings.ToLower(strings.TrimSpace(t.req.Subdomain))
+	subdomain := t.ctl.username
 	if subdomain != "" {
 		t.url = fmt.Sprintf("%s://%s.%s", protocol, subdomain, vhost)
 		return tunnelRegistry.Register(t.url, t)
 	}
-	//TODO:根据数据库配置，绑定多个子域名
 
 	// Register for random URL
 	t.url, err = tunnelRegistry.RegisterRepeat(func() string {

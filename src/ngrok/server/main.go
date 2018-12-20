@@ -6,6 +6,7 @@ import (
 	"ngrok/conn"
 	log "ngrok/log"
 	"ngrok/msg"
+	dbh "ngrok/server/db"
 	"ngrok/util"
 	"os"
 	"runtime/debug"
@@ -104,6 +105,8 @@ func Main() {
 
 	// init logging
 	log.LogTo(opts.logto, opts.loglevel)
+
+	dbh.InitStaticProxy()
 
 	// seed random number generator
 	seed, err := util.RandomSeed()

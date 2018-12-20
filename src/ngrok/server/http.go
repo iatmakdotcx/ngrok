@@ -3,12 +3,16 @@ package server
 import (
 	"crypto/tls"
 	"fmt"
-	vhost "github.com/inconshreveable/go-vhost"
-	//"net"
+	"io"
+	"net"
+
 	"ngrok/conn"
 	"ngrok/log"
+	dbh "ngrok/server/db"
 	"strings"
 	"time"
+
+	vhost "github.com/iatmakdotcx/go-vhost"
 )
 
 const (
@@ -80,6 +84,7 @@ func httpHandler(c conn.Conn, proto string) {
 	host := strings.ToLower(vhostConn.Host())
 	auth := vhostConn.Request.Header.Get("Authorization")
 
+	buffer := vhostConn.Buffer()
 	// done reading mux data, free up the request memory
 	vhostConn.Free()
 
@@ -90,8 +95,21 @@ func httpHandler(c conn.Conn, proto string) {
 	c.Debug("Found hostname %s in request", host)
 	tunnel := tunnelRegistry.Get(fmt.Sprintf("%s://%s", proto, host))
 	if tunnel == nil {
-		c.Info("No tunnel found for hostname %s", host)
-		c.Write([]byte(fmt.Sprintf(NotFound, len(host)+18, host)))
+		gohost := dbh.StaticProxy[fmt.Sprintf("%s://%s", proto, host)]
+		if gohost != "" {
+			server, err := net.Dial("tcp", "w.gout.tk:80")
+			if err != nil {
+				c.Warn("---------------------> request: %v", err)
+				return
+			}
+			server.Write(buffer.Bytes())
+
+			go io.Copy(server, c)
+			io.Copy(c, server)
+		} else {
+			c.Info("No tunnel found for hostname %s", host)
+			c.Write([]byte(fmt.Sprintf(NotFound, len(host)+18, host)))
+		}
 		return
 	}
 

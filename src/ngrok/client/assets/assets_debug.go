@@ -1,4 +1,4 @@
-// +build !release,!autoupdate
+// +build !release
 
 package assets
 

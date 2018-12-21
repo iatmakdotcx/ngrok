@@ -1,6 +1,7 @@
 package server
 
 import (
+	"crypto/md5"
 	"fmt"
 	"io"
 	"ngrok/conn"
@@ -98,7 +99,8 @@ func NewControl(ctlConn conn.Conn, authMsg *msg.Auth) {
 		c.username = Username
 	} else if authMsg.User != "" {
 		var userToken string
-		if dbh.Db.QueryRow("SELECT id,token FROM users where User=? and Password=?", authMsg.User, authMsg.Password).Scan(&Userid, &userToken) != nil {
+		var md5pwd = fmt.Sprintf("%x", md5.Sum([]byte(authMsg.Password)))
+		if dbh.Db.QueryRow("SELECT id,token FROM users where User=? and Password=?", authMsg.User, md5pwd).Scan(&Userid, &userToken) != nil {
 			failAuth2("the username or password is incorrect")
 			return
 		}

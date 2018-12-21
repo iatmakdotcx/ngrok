@@ -14,7 +14,7 @@ var Db, _ = sql.Open("mysql", "root:@/ngrokdb")
 var StaticProxy = make(map[string]string)
 
 func InitStaticProxy() {
-	rows, err := Db.Query("select host,proto,dstHost from staticProxy")
+	rows, err := Db.Query("select host,proto,dstHost from staticProxy where dstHost<>''")
 	if err != nil {
 		log.Error(err.Error())
 		panic(err)

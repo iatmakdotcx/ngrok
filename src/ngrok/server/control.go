@@ -89,15 +89,7 @@ func NewControl(ctlConn conn.Conn, authMsg *msg.Auth) {
 		failAuth2(e.Error())
 	}
 	var Userid int
-	if authMsg.ClientId != "" {
-		var Username string
-		if dbh.Db.QueryRow("SELECT id, User FROM users where token=?", authMsg.ClientId).Scan(&Userid, &Username) != nil {
-			failAuth2("token is invalid")
-			return
-		}
-		c.ClientTokenid = authMsg.ClientId
-		c.username = Username
-	} else if authMsg.User != "" {
+	if authMsg.User != "" {
 		var userToken string
 		var md5pwd = fmt.Sprintf("%x", md5.Sum([]byte(authMsg.Password)))
 		if dbh.Db.QueryRow("SELECT id,token FROM users where User=? and Password=?", authMsg.User, md5pwd).Scan(&Userid, &userToken) != nil {
@@ -106,6 +98,14 @@ func NewControl(ctlConn conn.Conn, authMsg *msg.Auth) {
 		}
 		c.ClientTokenid = userToken
 		c.username = authMsg.User
+	} else if authMsg.ClientId != "" {
+		var Username string
+		if dbh.Db.QueryRow("SELECT id, User FROM users where token=?", authMsg.ClientId).Scan(&Userid, &Username) != nil {
+			failAuth2("token is invalid")
+			return
+		}
+		c.ClientTokenid = authMsg.ClientId
+		c.username = Username
 	} else {
 		failAuth2("Need auth_token or username")
 		return

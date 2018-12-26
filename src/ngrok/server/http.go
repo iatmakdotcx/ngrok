@@ -97,7 +97,7 @@ func httpHandler(c conn.Conn, proto string) {
 	if tunnel == nil {
 		gohost := dbh.StaticProxy[fmt.Sprintf("%s://%s", proto, host)]
 		if gohost != "" {
-			server, err := net.Dial("tcp", "w.gout.tk:80")
+			server, err := net.Dial("tcp", gohost)
 			if err != nil {
 				c.Warn("---------------------> request: %v", err)
 				return

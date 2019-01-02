@@ -25,6 +25,7 @@ Authorization required
 
 	notFound = `HTTP/1.0 404 Not Found
 Content-Length: %d
+Content-Type: text/html; charset=utf-8
 
 `
 

@@ -16,25 +16,29 @@ import (
 )
 
 const (
-	NotAuthorized = `HTTP/1.0 401 Not Authorized
+	notAuthorized = `HTTP/1.0 401 Not Authorized
 WWW-Authenticate: Basic realm="ngrok"
 Content-Length: 23
 
 Authorization required
 `
 
-	NotFound = `HTTP/1.0 404 Not Found
+	notFound = `HTTP/1.0 404 Not Found
 Content-Length: %d
 
-Tunnel %s not found
 `
 
-	BadRequest = `HTTP/1.0 400 Bad Request
+	badRequest = `HTTP/1.0 400 Bad Request
 Content-Length: 12
 
 Bad Request
 `
 )
+
+func get404(host string) string {
+	context := fmt.Sprintf("Tunnel %s not found.<br /><a href=\"https://t.mak.cx\">t.mak.cx</a>", host)
+	return fmt.Sprintf(notFound, len(context)) + context
+}
 
 // Listens for new http(s) connections from the public internet
 func startHttpListener(addr string, tlsCfg *tls.Config) (listener *conn.Listener) {
@@ -76,7 +80,7 @@ func httpHandler(c conn.Conn, proto string) {
 	vhostConn, err := vhost.HTTP(c)
 	if err != nil {
 		c.Warn("Failed to read valid %s request: %v", proto, err)
-		c.Write([]byte(BadRequest))
+		c.Write([]byte(badRequest))
 		return
 	}
 
@@ -97,7 +101,7 @@ func httpHandler(c conn.Conn, proto string) {
 	if tunnel == nil {
 		gohost := dbh.StaticProxy[fmt.Sprintf("%s://%s", proto, host)]
 		if gohost != "" {
-			server, err := net.Dial("tcp", "w.gout.tk:80")
+			server, err := net.Dial("tcp", gohost)
 			if err != nil {
 				c.Warn("---------------------> request: %v", err)
 				return
@@ -108,7 +112,7 @@ func httpHandler(c conn.Conn, proto string) {
 			io.Copy(c, server)
 		} else {
 			c.Info("No tunnel found for hostname %s", host)
-			c.Write([]byte(fmt.Sprintf(NotFound, len(host)+18, host)))
+			c.Write([]byte(get404(host)))
 		}
 		return
 	}
@@ -118,7 +122,7 @@ func httpHandler(c conn.Conn, proto string) {
 	// request with basic authdeny the request
 	if tunnel.req.HttpAuth != "" && auth != tunnel.req.HttpAuth {
 		c.Info("Authentication failed: %s", auth)
-		c.Write([]byte(NotAuthorized))
+		c.Write([]byte(notAuthorized))
 		return
 	}
 

@@ -17,13 +17,12 @@ import (
 var metrics Metrics
 
 func init() {
-	keenApiKey := os.Getenv("KEEN_API_KEY")
-
-	if keenApiKey != "" {
-		metrics = NewKeenIoMetrics(60 * time.Second)
-	} else {
-		metrics = NewLocalMetrics(30 * time.Second)
-	}
+	// keenApiKey := os.Getenv("KEEN_API_KEY")
+	// if keenApiKey != "" {
+	// 	metrics = NewKeenIoMetrics(60 * time.Second)
+	// } else {
+	// 	metrics = NewLocalMetrics(30 * time.Second)
+	// }
 }
 
 type Metrics interface {

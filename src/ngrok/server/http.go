@@ -93,9 +93,6 @@ func httpHandler(c conn.Conn, proto string) {
 	// done reading mux data, free up the request memory
 	vhostConn.Free()
 
-	// We need to read from the vhost conn now since it mucked around reading the stream
-	c = conn.Wrap(vhostConn, "pub")
-
 	// multiplex to find the right backend host
 	c.Debug("Found hostname %s in request", host)
 	tunnel := tunnelRegistry.Get(fmt.Sprintf("%s://%s", proto, host))
@@ -108,7 +105,6 @@ func httpHandler(c conn.Conn, proto string) {
 				return
 			}
 			server.Write(buffer.Bytes())
-
 			go io.Copy(server, c)
 			io.Copy(c, server)
 		} else {
@@ -117,6 +113,9 @@ func httpHandler(c conn.Conn, proto string) {
 		}
 		return
 	}
+
+	// We need to read from the vhost conn now since it mucked around reading the stream
+	c = conn.Wrap(vhostConn, "pub")
 
 	// If the client specified http auth and it doesn't match this request's auth
 	// then fail the request with 401 Not Authorized and request the client reissue the

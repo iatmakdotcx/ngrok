@@ -17,12 +17,12 @@ import (
 var metrics Metrics
 
 func init() {
-	// keenApiKey := os.Getenv("KEEN_API_KEY")
-	// if keenApiKey != "" {
-	// 	metrics = NewKeenIoMetrics(60 * time.Second)
-	// } else {
-	// 	metrics = NewLocalMetrics(30 * time.Second)
-	// }
+	keenApiKey := os.Getenv("KEEN_API_KEY")
+	if keenApiKey != "" {
+		metrics = NewKeenIoMetrics(60 * time.Second)
+	} else {
+		metrics = NewLocalMetrics(30 * time.Second)
+	}
 }
 
 type Metrics interface {
@@ -126,32 +126,32 @@ func (m *LocalMetrics) CloseConnection(t *Tunnel, c conn.Conn, start time.Time, 
 }
 
 func (m *LocalMetrics) Report() {
-	m.Info("Reporting every %d seconds", int(m.reportInterval.Seconds()))
+	// m.Info("Reporting every %d seconds", int(m.reportInterval.Seconds()))
 
-	for {
-		time.Sleep(m.reportInterval)
-		buffer, err := json.Marshal(map[string]interface{}{
-			"windows":               m.windowsCounter.Count(),
-			"linux":                 m.linuxCounter.Count(),
-			"osx":                   m.osxCounter.Count(),
-			"other":                 m.otherCounter.Count(),
-			"httpTunnelMeter.count": m.httpTunnelMeter.Count(),
-			"tcpTunnelMeter.count":  m.tcpTunnelMeter.Count(),
-			"tunnelMeter.count":     m.tunnelMeter.Count(),
-			"tunnelMeter.m1":        m.tunnelMeter.Rate1(),
-			"connMeter.count":       m.connMeter.Count(),
-			"connMeter.m1":          m.connMeter.Rate1(),
-			"bytesIn.count":         m.bytesInCount.Count(),
-			"bytesOut.count":        m.bytesOutCount.Count(),
-		})
+	// for {
+	// 	time.Sleep(m.reportInterval)
+	// 	buffer, err := json.Marshal(map[string]interface{}{
+	// 		"windows":               m.windowsCounter.Count(),
+	// 		"linux":                 m.linuxCounter.Count(),
+	// 		"osx":                   m.osxCounter.Count(),
+	// 		"other":                 m.otherCounter.Count(),
+	// 		"httpTunnelMeter.count": m.httpTunnelMeter.Count(),
+	// 		"tcpTunnelMeter.count":  m.tcpTunnelMeter.Count(),
+	// 		"tunnelMeter.count":     m.tunnelMeter.Count(),
+	// 		"tunnelMeter.m1":        m.tunnelMeter.Rate1(),
+	// 		"connMeter.count":       m.connMeter.Count(),
+	// 		"connMeter.m1":          m.connMeter.Rate1(),
+	// 		"bytesIn.count":         m.bytesInCount.Count(),
+	// 		"bytesOut.count":        m.bytesOutCount.Count(),
+	// 	})
 
-		if err != nil {
-			m.Error("Failed to serialize metrics: %v", err)
-			continue
-		}
+	// 	if err != nil {
+	// 		m.Error("Failed to serialize metrics: %v", err)
+	// 		continue
+	// 	}
 
-		m.Info("Reporting: %s", buffer)
-	}
+	// 	m.Info("Reporting: %s", buffer)
+	// }
 }
 
 type KeenIoMetric struct {

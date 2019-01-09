@@ -26,7 +26,7 @@ Commands:
 	ngrok list                    List tunnel names from config file
 	ngrok help                    Print help
 	ngrok version                 Print ngrok version
-	ngrok server [ install | remove ]                 service
+	ngrok service [ install | remove ]                 service
 
 Examples:
 	ngrok start www api blog pubsub
@@ -137,7 +137,7 @@ func ParseArgs() (opts *Options, err error) {
 	case "help":
 		flag.Usage()
 		os.Exit(0)
-	case "server":
+	case "service":
 		opts.args = flag.Args()[1:]
 	case "":
 		err = fmt.Errorf("Error: Specify a local port to tunnel to, or " +

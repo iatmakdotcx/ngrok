@@ -25,7 +25,6 @@ func (p *serviceprogram) Start(s service.Service) error {
 }
 
 func (p *serviceprogram) run() {
-	// 代码写在这儿
 	NewController().Run(ggConfig)
 }
 

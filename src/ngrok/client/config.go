@@ -201,7 +201,7 @@ func LoadConfiguration(opts *Options) (config *Configuration, err error) {
 	case "start-all":
 		return
 
-	case "server":
+	case "service":
 		prg := &serviceprogram{}
 		s, e := service.New(prg, svcConfig)
 		if e != nil {

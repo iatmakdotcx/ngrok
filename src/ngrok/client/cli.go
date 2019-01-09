@@ -26,6 +26,7 @@ Commands:
 	ngrok list                    List tunnel names from config file
 	ngrok help                    Print help
 	ngrok version                 Print ngrok version
+	ngrok server [ install | remove ]                 service
 
 Examples:
 	ngrok start www api blog pubsub

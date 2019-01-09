@@ -136,6 +136,8 @@ func ParseArgs() (opts *Options, err error) {
 	case "help":
 		flag.Usage()
 		os.Exit(0)
+	case "server":
+		opts.args = flag.Args()[1:]
 	case "":
 		err = fmt.Errorf("Error: Specify a local port to tunnel to, or " +
 			"an ngrok command.\n\nExample: To expose port 80, run " +

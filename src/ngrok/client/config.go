@@ -13,6 +13,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/kardianos/service"
 	yaml "gopkg.in/yaml.v1"
 )
 
@@ -27,6 +28,7 @@ type Configuration struct {
 	Path               string                          `yaml:"-"`
 	User               string                          `yaml:"-"`
 	Password           string                          `yaml:"-"`
+	isService          bool                            `yaml:"-"`
 }
 
 type TunnelConfiguration struct {
@@ -199,6 +201,35 @@ func LoadConfiguration(opts *Options) (config *Configuration, err error) {
 	case "start-all":
 		return
 
+	case "server":
+		prg := &serviceprogram{}
+		s, e := service.New(prg, svcConfig)
+		if e != nil {
+			err = e
+			return
+		}
+		if len(opts.args) > 0 {
+			if opts.args[0] == "install" {
+				e := s.Install()
+				if e != nil {
+					err = e
+					return
+				}
+				fmt.Println("install service succeed!")
+				os.Exit(0)
+			} else if opts.args[0] == "remove" {
+				e := s.Uninstall()
+				if e != nil {
+					err = e
+					return
+				}
+				fmt.Println("remove service succeed!")
+				os.Exit(0)
+			}
+		}
+		config.isService = true
+		ggConfig = config
+		s.Run()
 	default:
 		err = fmt.Errorf("Unknown command: %s", opts.command)
 		return
